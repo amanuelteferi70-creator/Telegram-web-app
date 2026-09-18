@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Central Market — Telegram Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+ --bg:#f7f8fc;--card:#fff;--text:#111827;--muted:#667085;--line:#e7e9ef;
+ --brand:#6d28d9;--brand2:#4f46e5;--soft:#f0ebff;--green:#16a34a;--red:#dc2626;
+ --shadow:0 10px 28px rgba(17,24,39,.08)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans Ethiopic",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.app{max-width:680px;margin:auto;min-height:100vh;padding-bottom:86px}
+.header{background:var(--card);padding:15px 16px 12px;position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line)}
+.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:900}.brand span{color:var(--brand)}
+.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.circle{width:42px;height:42px;border-radius:14px;background:var(--soft);color:var(--brand);font-size:19px}
+.search{margin-top:13px;background:#f2f4f7;border-radius:14px;display:flex;align-items:center;padding:0 12px}
+.search input{width:100%;padding:13px 8px;border:0;outline:0;background:transparent;font-size:14px}
+.section{padding:15px 16px}.hero{padding:21px;border-radius:22px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:var(--shadow)}
+.hero h1{font-size:23px;margin:0 0 7px}.hero p{font-size:12px;line-height:1.6;margin:0 0 14px;opacity:.92}
+.hero button{background:#fff;color:var(--brand);padding:11px 14px;border-radius:12px;font-weight:800}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.head h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:11px}
+.chips{display:flex;gap:8px;overflow:auto}.chips::-webkit-scrollbar{display:none}.chip{padding:9px 13px;border-radius:20px;background:#fff;border:1px solid var(--line);white-space:nowrap;font-size:12px}.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.product{background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);position:relative}
+.pic{height:145px;background:linear-gradient(135deg,#f1f3f8,#e8eaf2);display:flex;align-items:center;justify-content:center;font-size:58px}.badge{position:absolute;top:9px;left:9px;background:#fff;padding:5px 7px;border-radius:9px;font-size:9px;font-weight:800}
+.info{padding:11px}.name{font-size:14px;font-weight:800;line-height:1.3}.seller{font-size:10px;color:var(--muted);margin-top:4px}.price{font-size:16px;font-weight:900;margin-top:8px}.add{position:absolute;right:9px;bottom:9px;background:var(--brand);color:#fff;width:35px;height:35px;border-radius:11px;font-size:20px}
+.empty{grid-column:1/-1;text-align:center;padding:35px;color:var(--muted)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);z-index:30}.bottomin{max-width:680px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.nav{background:transparent;color:#667085;padding:9px 3px 8px;font-size:10px}.nav b{display:block;font-size:20px;margin-bottom:3px}.nav.active{color:var(--brand)}
+.count{position:absolute;background:var(--red);color:#fff;min-width:16px;height:16px;border-radius:9px;font-size:9px;display:inline-flex;align-items:center;justify-content:center;margin:-28px 0 0 14px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:60}.sheet{position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:auto;background:#fff;border-radius:24px 24px 0 0;max-height:90%;overflow:auto;padding:17px}
+.close{float:right;width:37px;height:37px;border-radius:11px;background:#f1f3f6}.detailpic{height:235px;border-radius:19px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:92px;clear:both}
+.detail h2{margin:14px 0 5px}.desc{font-size:13px;line-height:1.7;color:var(--muted)}.primary{width:100%;padding:13px;border-radius:13px;background:var(--brand);color:#fff;font-weight:800;margin-top:10px}
+.row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.thumb{width:55px;height:55px;border-radius:12px;background:#f1f3f8;display:flex;align-items:center;justify-content:center;font-size:27px}.rowmain{flex:1;min-width:0}.qty{display:flex;gap:7px;align-items:center}.qty button{width:30px;height:30px;border-radius:8px;background:var(--soft);color:var(--brand)}
+.total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;padding-top:15px}
+.form{display:grid;gap:10px}.form label{font-size:11px;font-weight:700}.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;outline:0;background:#fff}.form textarea{min-height:80px;resize:vertical}
+.adminbar{display:none}.adminbox{background:#fff;border-radius:17px;padding:15px;box-shadow:var(--shadow);margin-top:12px}.adminbox h3{margin:0 0 12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:#fee2e2!important;color:#b91c1c!important}.success{background:#dcfce7!important;color:#15803d!important}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;z-index:90;display:none;white-space:nowrap}
+@media(max-width:360px){.grid{grid-template-columns:1fr}.pic{height:160px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+ <div class="top">
+  <div><div class="brand">🛍️ <span>Central Market</span></div><div class="sub">ግዢ • ሽያጭ • Affiliate • ኮሚሽን</div></div>
+  <button class="circle" onclick="openAccount()">👤</button>
+ </div>
+ <div class="search">🔎 <input id="search" placeholder="ምርት ፈልግ..." oninput="renderProducts()"></div>
+</header>
+
+<main id="home">
+<section class="section"><div class="hero">
+ <h1>ሁሉንም በአንድ ገበያ 🛒</h1>
+ <p>ኮስሜቲክስ፣ ኤሌክትሮኒክስ፣ ፋሽን፣ የቤት እቃዎች እና ሌሎችም።</p>
+ <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">ምርቶችን ይመልከቱ</button>
+</div></section>
+
+<section class="section">
+ <div class="head"><h2>ምድቦች</h2><span class="muted">ሁሉንም ምረጥ</span></div>
+ <div class="chips" id="chips"></div>
+</section>
+
+<section class="section" id="products">
+ <div class="head"><h2>ምርቶች</h2><span class="muted" id="resultCount"></span></div>
+ <div class="grid" id="grid"></div>
+</section>
+</main>
+
+<div id="adminbar" class="section adminbar"></div>
+</div>
+
+<div class="bottom"><div class="bottomin">
+ <button class="nav active" onclick="goHome(this)"><b>⌂</b>Home</button>
+ <button class="nav" onclick="showCats(this)"><b>☰</b>Categories</button>
+ <button class="nav" onclick="openCart()"><b>🛒</b><span class="count" id="cartCount">0</span>Cart</button>
+ <button class="nav" onclick="openAccount(this)"><b>👤</b>Account</button>
+</div></div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+const KEY="central_market_products_v1", CART="central_market_cart_v1";
+const defaultProducts=[
+{id:1,name:"Premium Face Cream",cat:"ኮስሜቲክስ",price:850,seller:"Beauty Shop",emoji:"🧴",stock:25,badge:"ተወዳጅ",desc:"የፊት ቆዳን ለማለስለስ የሚረዳ የውበት ምርት።"},
+{id:2,name:"Wireless Headphones",cat:"ኤሌክትሮኒክስ",price:2450,seller:"Tech House",emoji:"🎧",stock:12,badge:"NEW",desc:"Bluetooth የሚደግፍ ምቹ የጆሮ ማዳመጫ።"},
+{id:3,name:"Classic Sneakers",cat:"ፋሽን",price:1850,seller:"Style Store",emoji:"👟",stock:18,badge:"SALE",desc:"ለዕለታዊ አጠቃቀም ምቹ የስፖርት ጫማ።"},
+{id:4,name:"Smart Watch",cat:"ኤሌክትሮኒክስ",price:3200,seller:"Digital Zone",emoji:"⌚",stock:9,badge:"NEW",desc:"ዘመናዊ ሰዓት ከማሳወቂያ ባህሪያት ጋር።"},
+{id:5,name:"Ladies Handbag",cat:"ፋሽን",price:2100,seller:"Fashion Hub",emoji:"👜",stock:14,badge:"",desc:"ዘመናዊ የሴቶች ቦርሳ።"},
+{id:6,name:"Home Blender",cat:"ቤት",price:2750,seller:"Home Market",emoji:"🥤",stock:7,badge:"",desc:"ለቤት አጠቃቀም ቀላል እና ኃይለኛ blender።"},
+{id:7,name:"Men's T-Shirt",cat:"ልብስ",price:750,seller:"Fashion Hub",emoji:"👕",stock:30,badge:"",desc:"ለዕለታዊ አጠቃቀም ጥራት ያለው ቲሸርት።"},
+{id:8,name:"Kitchen Set",cat:"የቤት እቃ",price:1650,seller:"Home Market",emoji:"🍳",stock:11,badge:"",desc:"የወጥ ቤት መሳሪያዎች ስብስብ።"},
+{id:9,name:"Perfume",cat:"ኮስሜቲክስ",price:1450,seller:"Beauty Shop",emoji:"🌸",stock:20,badge:"",desc:"የሚያምር ሽታ ያለው ፐርፊዩም።"},
+{id:10,name:"Phone Charger",cat:"ኤሌክትሮኒክስ",price:550,seller:"Tech House",emoji:"🔌",stock:40,badge:"",desc:"ፈጣን ቻርጅ የሚደግፍ ቻርጀር።"}
+];
+let products=JSON.parse(localStorage.getItem(KEY)||"null")||defaultProducts;
+let cart=JSON.parse(localStorage.getItem(CART)||"{}");
+let selectedCat="ሁሉም";
+const cats=["ሁሉም","ኮስሜቲክስ","ኤሌክትሮኒክስ","ፋሽን","ልብስ","ቤት","የቤት እቃ"];
+
+function money(n){return new Intl.NumberFormat("en-US").format(Number(n)||0)+" ብር"}
+function save(){localStorage.setItem(KEY,JSON.stringify(products))}
+function saveCart(){localStorage.setItem(CART,JSON.stringify(cart));updateCart()}
+function updateCart(){document.getElementById("cartCount").textContent=Object.values(cart).reduce((a,b)=>a+Number(b),0)}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",1800)}
+function renderCats(){document.getElementById("chips").innerHTML=cats.map(c=>`<button class="chip ${c===selectedCat?"active":""}" onclick="selectCat('${c}')">${c}</button>`).join("")}
+function selectCat(c){selectedCat=c;renderCats();renderProducts()}
+function renderProducts(){
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ const list=products.filter(p=>(selectedCat==="ሁሉም"||p.cat===selectedCat)&&(!q||String(p.name).toLowerCase().includes(q)||String(p.cat).includes(q)||String(p.seller).toLowerCase().includes(q)));
+ document.getElementById("resultCount").textContent=list.length+" ምርቶች";
+ document.getElementById("grid").innerHTML=list.length?list.map(p=>`
+ <article class="product" onclick="openProduct(${p.id})">
+ ${p.badge?`<span class="badge">${p.badge}</span>`:""}
+ <div class="pic">${p.emoji||"📦"}</div>
+ <div class="info"><div class="name">${p.name}</div><div class="seller">${p.seller}</div><div class="price">${money(p.price)}</div></div>
+ <button class="add" onclick="event.stopPropagation();addCart(${p.id})">+</button>
+ </article>`).join(""):`<div class="empty">የፈለጉት ምርት አልተገኘም።</div>`;
+}
+function addCart(id){const p=products.find(x=>x.id===id);if(!p)return;if((cart[id]||0)>=Number(p.stock||999)){toast("የምርቱ ክምችት አልበቃም");return}cart[id]=(cart[id]||0)+1;saveCart();toast("ወደ ጋሪ ተጨመረ ✓")}
+function openSheet(){document.getElementById("overlay").style.display="block"}
+function closeSheet(){document.getElementById("overlay").style.display="none"}
+function openProduct(id){
+ const p=products.find(x=>x.id===id); if(!p)return;
+ document.getElementById("sheet").innerHTML=`<button class="close" onclick="closeSheet()">✕</button><div class="detailpic">${p.emoji||"📦"}</div>
+ <h2>${p.name}</h2><div class="seller">በ ${p.seller} • ${p.cat}</div><div class="price">${money(p.price)}</div>
+ <p class="desc">${p.desc||""}</p><p class="desc">📦 የቀረው: ${p.stock} • 💰 Affiliate commission: 10%</p>
+ <button class="primary" onclick="addCart(${p.id});closeSheet()">🛒 ወደ ጋሪ ጨምር</button>
+ <button class="primary" style="background:#111827" onclick="shareProduct(${p.id})">🔗 Affiliate ሊንክ አጋራ</button>`;
+ openSheet();
+}
+function shareProduct(id){
+ const p=products.find(x=>x.id===id);if(!p)return;
+ const link=location.href.split("?")[0]+"?product="+id+"&ref=affiliate";
+ if(navigator.share)navigator.share({title:p.name,text:p.name+" - "+money(p.price),url:link}).catch(()=>{});
+ else toast("Affiliate ሊንክ: "+link);
+}
+function openCart(){
+ const ids=Object.keys(cart).filter(id=>cart[id]>0);
+ let total=0;
+ const rows=ids.map(id=>{const p=products.find(x=>x.id==id);const q=Number(cart[id]);total+=p.price*q;return `<div class="row"><div class="thumb">${p.emoji}</div><div class="rowmain"><b>${p.name}</b><div class="seller">${money(p.price)}</div></div><div class="qty"><button onclick="changeQty(${id},-1)">−</button><b>${q}</b><button onclick="changeQty(${id},1)">+</button></div></div>`}).join("");
+ document.getElementById("sheet").innerHTML=`<button class="close" onclick="closeSheet()">✕</button><h2>🛒 የእኔ ጋሪ</h2>${rows||'<div class="empty">ጋሪዎ ባዶ ነው።</div>'}${ids.length?`<div class="total"><span>ጠቅላላ</span><span>${money(total)}</span></div><button class="primary" onclick="checkoutDemo()">💳 ወደ Checkout</button>`:""}`;
+ openSheet();
+}
+function changeQty(id,d){const p=products.find(x=>x.id==id);cart[id]=(cart[id]||0)+d;if(cart[id]>Number(p.stock||999))cart[id]=Number(p.stock||999);if(cart[id]<=0)delete cart[id];saveCart();openCart()}
+function checkoutDemo(){toast("Payment እና Order system በቀጣዩ ደረጃ ይገነባል")}
+function openAccount(){
+ document.getElementById("sheet").innerHTML=`<button class="close" onclick="closeSheet()">✕</button><h2>👤 መለያ</h2>
+ <p class="desc">Telegram ተጠቃሚ • Customer / Seller / Affiliate</p>
+ <button class="primary" onclick="openSellerAdmin()">🏪 Seller Dashboard</button>
+ <button class="primary" style="background:#111827" onclick="openAffiliate()">🔗 Affiliate Dashboard</button>`;
+ openSheet();
+}
+function openAffiliate(){
+ document.getElementById("sheet").innerHTML=`<button class="close" onclick="openAccount()">‹</button><h2>🔗 Affiliate Dashboard</h2>
+ <div class="adminbox"><h3>የእኔ ኮሚሽን</h3><div class="total"><span>Balance</span><span>0 ብር</span></div><p class="desc">የኮሚሽን መጠን: <b>10%</b> ከሚሸጠው ዋጋ ላይ።</p></div>
+ <button class="primary" onclick="toast('የAffiliate links በምርት ገጽ ላይ ይፈጠራሉ')">🔗 የእኔን Links አስተዳድር</button>`;
+}
+function openSellerAdmin(){
+ document.getElementById("sheet").innerHTML=`<button class="close" onclick="closeSheet()">✕</button><h2>🏪 Seller Dashboard</h2>
+ <p class="desc">እዚህ ላይ ምርት መጨመር፣ ዋጋ መቀየር፣ ክምችት ማስተካከል እና ምርት ማስወገድ ትችላለህ።</p>
+ <div class="adminbox"><h3>➕ አዲስ ምርት</h3><form class="form" onsubmit="addProduct(event)">
+ <label>የምርት ስም<input id="pn" required></label>
+ <label>ምድብ<select id="pc">${cats.slice(1).map(c=>`<option>${c}</option>`).join("")}</select></label>
+ <label>ዋጋ (ብር)<input id="pp" type="number" min="0.01" step="0.01" required></label>
+ <label>ክምችት<input id="ps" type="number" min="0" step="1" value="10" required></label>
+ <label>ምልክት/Emoji<input id="pe" value="📦"></label>
+ <label>መግለጫ<textarea id="pd"></textarea></label>
+ <button class="primary" type="submit">ምርቱን ጨምር</button></form></div>
+ <div class="adminbox"><h3>✏️ ምርቶችን አስተካክል</h3><div id="manageList"></div></div>`;
+ renderManage();openSheet();
+}
+function renderManage(){
+ const el=document.getElementById("manageList");if(!el)return;
+ el.innerHTML=products.map(p=>`<div class="row"><div class="thumb">${p.emoji||"📦"}</div><div class="rowmain"><b>${p.name}</b><div class="seller">${money(p.price)} • Stock ${p.stock}</div></div><button onclick="editProduct(${p.id})">✏️</button><button class="danger" onclick="deleteProduct(${p.id})">🗑️</button></div>`).join("");
+}
+function addProduct(e){
+ e.preventDefault();
+ const name=document.getElementById("pn").value.trim(),price=Number(document.getElementById("pp").value),stock=Number(document.getElementById("ps").value);
+ if(!name||!Number.isFinite(price)||price<=0||!Number.isInteger(stock)||stock<0){toast("መረጃውን በትክክል ሙላ");return}
+ products.push({id:Date.now(),name,cat:document.getElementById("pc").value,price,stock,seller:"Central Market Seller",emoji:document.getElementById("pe").value||"📦",badge:"",desc:document.getElementById("pd").value.trim()});
+ save();renderProducts();renderManage();e.target.reset();toast("ምርቱ ተጨመረ ✓");
+}
+function editProduct(id){
+ const p=products.find(x=>x.id===id);if(!p)return;
+ const name=prompt("የምርት ስም",p.name);if(name===null)return;
+ const price=Number(prompt("ዋጋ በብር",p.price));if(!Number.isFinite(price)||price<=0){toast("የዋጋ መረጃ ልክ አይደለም");return}
+ const stock=Number(prompt("ክምችት",p.stock));if(!Number.isInteger(stock)||stock<0){toast("የክምችት መረጃ ልክ አይደለም");return}
+ p.name=name.trim()||p.name;p.price=price;p.stock=stock;save();renderProducts();renderManage();toast("ምርቱ ተስተካከለ ✓");
+}
+function deleteProduct(id){if(!confirm("ይህን ምርት ማስወገድ ትፈልጋለህ?"))return;products=products.filter(p=>p.id!==id);delete cart[id];save();saveCart();renderProducts();renderManage();toast("ምርቱ ተወግዷል")}
+function showCats(btn){document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));btn.classList.add("active");document.getElementById("products").scrollIntoView({behavior:"smooth"});toast("ከምድቦቹ ይምረጡ")}
+function goHome(btn){document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));btn.classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+renderCats();renderProducts();updateCart();
+</script>
+</body>
+</html>
